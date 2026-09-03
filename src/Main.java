@@ -1,13 +1,22 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+import model.Propietario;
+import repository.PropietarioRepository;
+import service.PropietarioService;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+public class Main {
+    // Aqui empieza el programa.
+    public static void main(String[] args) {
+        // Donde se guardan.
+        PropietarioRepository repo = new PropietarioRepository();
+        // El que registra usando el repo.
+        PropietarioService service = new PropietarioService(repo);
+
+        // Un propietario con sus 7 datos.
+        Propietario p1 = new Propietario("Carlos", "Perez", "12345678", "+573005698325", "1990-05-10", "carlos@mail.com", "abc123");
+
+        // Lo guardamos (ahi se encripta la clave) y lo mostramos.
+        service.registrarPropietario(p1);
+        System.out.println(p1);
+        // Mostramos la clave ya encriptada para comprobar.
+        System.out.println("Clave guardada: " + p1.getClave());
     }
 }
