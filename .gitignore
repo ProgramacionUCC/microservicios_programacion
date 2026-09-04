@@ -32,3 +32,6 @@ bin/
 ### Local Agent - nunca subir a git ###
 AGENTS.md
 agents.md
+
+### Repaso local - nunca subir a git ###
+repaso.md
