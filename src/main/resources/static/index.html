@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cogollo | HU-03, HU-04 y HU-05</title>
+  <style>
+    :root { --ink:#17211b; --paper:#f5f0e6; --green:#174b3a; --lime:#d2e56d; --line:#c9c1b2; }
+    * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--paper); font:16px Georgia,serif; }
+    header { padding:28px 7vw; background:var(--green); color:white; } h1 { margin:0 0 8px; font-size:clamp(2rem,5vw,4.5rem); } header p { margin:0; color:#dce8cb; }
+    main { max-width:1100px; margin:0 auto; padding:34px 7vw 70px; display:grid; gap:24px; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); }
+    section { background:white; border:1px solid var(--line); padding:22px; box-shadow:5px 5px 0 #ded6c7; } h2 { margin-top:0; color:var(--green); } label { display:block; margin:12px 0 5px; font-weight:bold; } input, textarea, button { width:100%; padding:11px; font:inherit; border:1px solid #9c9589; } textarea { min-height:78px; resize:vertical; } button { margin-top:15px; cursor:pointer; background:var(--green); color:white; border:0; font-weight:bold; } button:hover { background:#286b4c; } .status { grid-column:1/-1; padding:14px; background:var(--lime); min-height:48px; } code { white-space:pre-wrap; word-break:break-word; } .hint { color:#596258; font-size:.92rem; }
+  </style>
+</head>
+<body>
+<header><h1>Cogollo</h1><p>Pruebas visibles de HU-03 Crear plato, HU-04 Modificar plato y HU-05 Autenticación</p></header>
+<main>
+  <div class="status" id="status">Servidor activo. Inicia sesión para habilitar las operaciones.</div>
+  <section><h2>HU-05 · Login</h2><p class="hint">Admin: admin@cogollo.com / Admin123!<br>Propietario: propietario@cogollo.com / Owner123!</p>
+    <label>Correo</label><input id="correo" value="propietario@cogollo.com" type="email">
+    <label>Clave</label><input id="clave" value="Owner123!" type="password"><button onclick="login()">Iniciar sesión</button>
+  </section>
+  <section><h2>Creación de empleado</h2><p class="hint">Disponible únicamente con token de PROPIETARIO.</p>
+    <label>Correo del empleado</label><input id="empleadoCorreo" placeholder="empleado@cogollo.com" type="email">
+    <label>Clave del empleado</label><input id="empleadoClave" placeholder="Empleado123!" type="password"><button onclick="crearEmpleado()">Crear empleado</button>
+  </section>
+  <section><h2>HU-03 · Crear plato</h2><p class="hint">El restaurante es obligatorio y debe pertenecer al propietario autenticado. Demo: restaurante 1.</p>
+    <label>Nombre</label><input id="nombre" value="Arepa especial">
+    <label>Precio</label><input id="precio" value="18000" type="number">
+    <label>Descripción</label><textarea id="descripcion">Arepa con queso y pollo</textarea>
+    <label>ID restaurante</label><input id="restauranteId" value="1" type="number"><button onclick="crearPlato()">Crear plato</button>
+  </section>
+  <section><h2>HU-04 · Modificar plato</h2><p class="hint">Solo permite cambiar precio y descripción. Nombre y restaurante quedan protegidos.</p>
+    <label>ID del plato</label><input id="platoId" value="1" type="number">
+    <label>Nuevo precio</label><input id="nuevoPrecio" value="20000" type="number">
+    <label>Nueva descripción</label><textarea id="nuevaDescripcion">Arepa actualizada</textarea><button onclick="modificarPlato()">Modificar plato</button>
+  </section>
+  <section><h2>Respuesta</h2><code id="respuesta">Aquí aparecerán las respuestas de la API.</code></section>
+</main>
+<script>
+let token = '';
+const $ = id => document.getElementById(id);
+function show(data) { $('respuesta').textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2); }
+async function call(url, options = {}) { options.headers = {'Content-Type':'application/json', ...(token ? {Authorization:'Bearer '+token}:{}), ...(options.headers||{})}; const r=await fetch(url, options); const text=await r.text(); let data; try { data=JSON.parse(text); } catch { data=text; } if(!r.ok) throw new Error(r.status+' '+JSON.stringify(data)); return data; }
+async function login() { try { const data=await call('/api/auth/login',{method:'POST',body:JSON.stringify({correo:$('correo').value,clave:$('clave').value})}); token=data.token; $('status').textContent='Sesión activa. Rol y token cargados correctamente.'; show(data); } catch(e) { show('Error de login: '+e.message); } }
+async function crearEmpleado() { try { const data=await call('/api/empleados',{method:'POST',body:JSON.stringify({correo:$('empleadoCorreo').value,clave:$('empleadoClave').value})}); show('Empleado creado correctamente:\n'+JSON.stringify(data,null,2)); } catch(e) { show('Error al crear empleado: '+e.message); } }
+async function crearPlato() { try { const data=await call('/api/platos',{method:'POST',body:JSON.stringify({nombre:$('nombre').value,precio:Number($('precio').value),descripcion:$('descripcion').value,restauranteId:Number($('restauranteId').value)})}); $('platoId').value=data.id; show('Plato creado correctamente. ID cargado para modificar:\n'+JSON.stringify(data,null,2)); } catch(e) { show('Error al crear plato: '+e.message+'\nUsa login con propietario@cogollo.com / Owner123! y restaurante 1.'); } }
+async function modificarPlato() { try { show(await call('/api/platos/'+$('platoId').value,{method:'PUT',body:JSON.stringify({precio:Number($('nuevoPrecio').value),descripcion:$('nuevaDescripcion').value})})); } catch(e) { show('Error al modificar plato: '+e.message); } }
+</script>
+</body></html>
