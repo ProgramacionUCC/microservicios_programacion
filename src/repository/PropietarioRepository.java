@@ -18,4 +18,11 @@ public class PropietarioRepository {
     public List<Propietario> getPropietarios() {
         return propietarios;
     }
+
+    // Verifica si existe un propietario registrado con el documento ingresado.
+    public boolean existePorDocumento(String documento) {
+        return propietarios.stream()
+                .anyMatch(p -> p.getDocumentoDeIdentidad().equals(documento));
+    }
+
 }
