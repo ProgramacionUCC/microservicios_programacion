@@ -15,6 +15,7 @@ public class RestauranteService {
     }
 
     public void crearRestaurante(Restaurante restaurante) {
+        if (restaurante == null) throw new IllegalArgumentException("Restaurante no puede ser nulo");
         //  Validar que no vengan campos nulos o vacíos (Campos obligatorios)
         if (esNuloOVacio(restaurante.getNombre()) ||
                 esNuloOVacio(restaurante.getNit()) ||
@@ -36,12 +37,14 @@ public class RestauranteService {
         }
 
         //  Validar formato de Teléfono: únicamente numérico, opcional '+' al inicio y máximo 13 caracteres (ej: +573005698325)
-        if (!restaurante.getTelefono().trim().matches("^\\+?\\d{1,12}$")) {
+        String telefono = restaurante.getTelefono().trim();
+        if (telefono.length() > 13 || !telefono.matches("^\\+?\\d+$")) {
             throw new IllegalArgumentException("El teléfono debe contener únicamente números, máximo 13 caracteres en total y puede incluir '+' al inicio.");
         }
 
-        //  Validar que el idPropietario corresponda a un usuario existente con ese rol
-        boolean existePropietario = propietarioRepository.existePorDocumento(restaurante.getIdPropietario());
+        //  Validar que el idPropietario corresponda a un usuario existente con rol PROPIETARIO
+        boolean existePropietario = propietarioRepository.getPropietarios().stream()
+                .anyMatch(p -> p.getDocumentoDeIdentidad().equals(restaurante.getIdPropietario()) && "PROPIETARIO".equals(p.getRol()));
         if (!existePropietario) {
             throw new IllegalArgumentException("El ID del propietario no corresponde a un usuario registrado con dicho rol.");
         }
