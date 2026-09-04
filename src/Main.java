@@ -2,6 +2,8 @@ import model.Propietario;
 import repository.PropietarioRepository;
 import service.PropietarioService;
 
+import java.time.LocalDate;
+
 public class Main {
     // Aqui empieza el programa.
     public static void main(String[] args) {
@@ -11,7 +13,7 @@ public class Main {
         PropietarioService service = new PropietarioService(repo);
 
         // Un propietario con sus 7 datos.
-        Propietario p1 = new Propietario("Carlos", "Perez", "12345678", "+573005698325", "1990-05-10", "carlos@mail.com", "abc123");
+        Propietario p1 = new Propietario("Carlos", "Perez", "12345678", "+573005698325", LocalDate.of(1990, 5, 10), "carlos@mail.com", "abc123");
 
         // Lo guardamos (ahi se encripta la clave) y lo mostramos.
         service.registrarPropietario(p1);
